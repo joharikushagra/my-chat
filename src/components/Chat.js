@@ -1,38 +1,60 @@
 import { Avatar } from "@material-ui/core";
 import React from "react";
 import "../css/Chat.css";
-import { AttachFile, InsertEmoticon, Mic, MoreVert, SearchOutlined } from "@material-ui/icons";
-import {IconButton} from '@material-ui/core';
+import {
+  AttachFile,
+  InsertEmoticon,
+  Mic,
+  MoreVert,
+  SearchOutlined,
+} from "@material-ui/icons";
+import { IconButton } from "@material-ui/core";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import db from "../Firebase";
+import { useStateValue } from "../StateProvider";
+import firebase from "firebase";
 
 function Chat() {
   const [seed, setSeed] = useState("");
   const [input, setInput] = useState("");
-  const {roomId} = useParams();
-  const [roomName,setRoomName] = useState("");
+  const { roomId } = useParams();
+  const [roomName, setRoomName] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [{ user }, dispatch] = useStateValue();
 
-  useEffect(()=>{
-     if(roomId){
-       db.collection('rooms').doc(roomId).onSnapshot(snapshot=>{
-         setRoomName(snapshot.data().name)
-       })
-     }
-  },[roomId])
+  useEffect(() => {
+    if (roomId) {
+      db.collection("rooms")
+        .doc(roomId)
+        .onSnapshot((snapshot) => {
+          setRoomName(snapshot.data().name);
+        });
+
+      db.collection("rooms")
+        .doc(roomId)
+        .collection("messages")
+        .orderBy("timestamp", "asc")
+        .onSnapshot((snapshot) => {
+          setMessages(snapshot.docs.map((doc) => doc.data()));
+        });
+    }
+  }, [roomId]);
 
   useEffect(() => {
     setSeed(Math.floor(Math.random() * 5000));
   }, []);
 
-  const sendMessage = (e)=>{
+  const sendMessage = (e) => {
     e.preventDefault();
-    console.log("aanfafn typed",input);
+    // console.log("aanfafn typed",input);
+    db.collection("rooms").doc(roomId).collection("messages").add({
+      message: input,
+      name: user.displayName,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    });
     setInput("");
-
-  }
-
-
+  };
 
   return (
     <div className="chat">
@@ -40,7 +62,12 @@ function Chat() {
         <Avatar src={`https://avatars.dicebear.com/api/human/${seed}.svg`} />
         <div className="chat__headerInfo">
           <h3>{roomName}</h3>
-          <p>LAst seen ...</p>
+          <p>
+            last seen{" "}
+            {new Date(
+              messages[messages.length - 1]?.timestamp?.toDate()
+            ).toUTCString()}
+          </p>
         </div>
         <div className="chat__headerRight">
           <IconButton>
@@ -56,22 +83,42 @@ function Chat() {
       </div>
 
       <div className="chat__body">
-        <p className="chat__message chat__receiver">
+        {messages.map((message) => (
+          <p
+            className={`chat__message ${
+              message.name === user.displayName && "chat__receiver"
+            }`}
+          >
+            <span className="chat__name">{message.name}</span>
+            {message.message}
+            <span className="chat__timestamp">
+              {new Date(message.timestamp?.toDate()).toUTCString()}
+            </span>
+          </p>
+        ))}
+        {/* <p className="chat__message chat__receiver">
         <span className="chat__name">Sonny</span>
         hah
         <span className="chat__timestamp">2:20am</span>
         </p>
 
-        <p className="chat__message">hah</p>
+        <p className="chat__message">hah</p> */}
       </div>
 
       <div className="chat__footer">
-        <InsertEmoticon/>
+        <InsertEmoticon />
         <form>
-          <input type="text" value={input} onChange={e=> setInput(e.target.value)} placeholder="Type a message"/>
-          <button onClick={sendMessage} type="submit" >Send a message</button>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type a message"
+          />
+          <button onClick={sendMessage} type="submit">
+            Send a message
+          </button>
         </form>
-        <Mic/>
+        <Mic />
       </div>
     </div>
   );

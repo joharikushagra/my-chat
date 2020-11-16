@@ -5,13 +5,15 @@ import { Chat, DonutLarge, MoreVert, SearchOutlined } from "@material-ui/icons";
 import { IconButton } from "@material-ui/core";
 import SidebarChats from "./SidebarChats";
 import db from "../Firebase";
+import { useStateValue } from "../StateProvider";
 
 
 function Sidebar() {
   const [rooms,setRooms] = useState([]);
+  const [{user},dispatch] = useStateValue();
 
   useEffect(()=>{
-    db.collection('rooms').onSnapshot(snapshot=>{
+    const unsubscribe = db.collection('rooms').onSnapshot(snapshot=>{
      setRooms(snapshot.docs.map(doc=>(
        {
          id:doc.id,
@@ -20,12 +22,16 @@ function Sidebar() {
      ))
      )
     })
+
+    return ()=>{
+      unsubscribe();
+    } 
   },[])
 
   return (
     <div className="sidebar">
       <div className="sidebar__header">
-        <Avatar />
+        <Avatar src={user?.photoURL} />
         <div className="sidebar__headerRight">
           <IconButton>
             <DonutLarge />
@@ -33,7 +39,7 @@ function Sidebar() {
           <IconButton>
             <Chat />
           </IconButton>
-          <IconButton>
+          <IconButton> 
             <MoreVert />
           </IconButton>
         </div>
