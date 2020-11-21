@@ -3,11 +3,28 @@
     flex-direction: column;
     flex:.35;
 }
+
+.sidebarDark{
+    display: flex;
+    flex-direction: column;
+    flex:.35;
+    color:white;
+    background-color: #000;
+}
 .sidebar__header{
     display: flex;
     justify-content: space-between;
     padding: 20px;
     border-right: 1px solid lightgray;
+}
+
+.sidebar__headerdark{
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    border-right: 1px solid lightgray;
+    color:white;
+    background-color: #000;
 }
 
 .sidebar__headerRight{
@@ -22,10 +39,24 @@
     font-size: 24px !important;
 }
 
+.sidebar__headerRightDark > .MuiSvgIcon-root{
+    margin-right: 2vw;
+    font-size: 24px !important;
+    color:white !important;
+}
+
 .sidebar__search{
     display: flex;
     align-items: center;
     background-color: #f6f6f6;
+    height: 39px;
+    padding:10px;
+}
+.sidebar__searchDark{
+    display: flex;
+    align-items: center;
+    background-color: #000;
+    color: white;
     height: 39px;
     padding:10px;
 }
@@ -50,6 +81,12 @@
 
 .sidebar__chats{
     background-color: white;
+    flex: 1;
+    overflow: scroll;
+}
+.sidebar__chatsdark{
+    background-color: black;
+    color: white;
     flex: 1;
     overflow: scroll;
 }
