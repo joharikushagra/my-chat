@@ -1,14 +1,15 @@
-import { Avatar } from "@material-ui/core";
+import { Avatar, Button, Modal } from "@material-ui/core";
 import React from "react";
+import { useHistory } from "react-router-dom"
 import "../css/Chat.css";
 import {
   AttachFile,
   InsertEmoticon,
   Mic,
-  MoreVert,
   SearchOutlined,
 } from "@material-ui/icons";
 import { IconButton } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import db from "../Firebase";
@@ -22,13 +23,25 @@ function Chat() {
   const [roomName, setRoomName] = useState("");
   const [messages, setMessages] = useState([]);
   const [{ user }, dispatch] = useStateValue();
+  const history = useHistory();
 
   useEffect(() => {
+    console.log('====================================');
+    console.log(roomId);
+    console.log('====================================');
+    if(!roomId) {
+      history.push("/")
+      return
+    }
     if (roomId) {
       db.collection("rooms")
         .doc(roomId)
         .onSnapshot((snapshot) => {
-          setRoomName(snapshot.data().name);
+          if(snapshot.data()) {
+            setRoomName(snapshot.data().name);
+          } else {
+            setRoomName("")
+          }
         });
 
       db.collection("rooms")
@@ -42,6 +55,10 @@ function Chat() {
   }, [roomId]);
 
   useEffect(() => {
+    if(!roomId) {
+      history.push("/rooms")
+      return
+    }
     setSeed(Math.floor(Math.random() * 5000));
   }, []);
 
@@ -54,7 +71,15 @@ function Chat() {
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     });
     setInput("");
-  };
+  }
+
+
+  const deleteRoomHandler = ()=>{
+    db.collection('rooms').doc(roomId).delete().then(res=>{
+      console.log('room deleted');
+      history.push("/rooms")
+    }).catch(err=>console.log(err.message));
+  }
 
   return (
     <div className="chat">
@@ -77,7 +102,7 @@ function Chat() {
             <AttachFile />
           </IconButton>
           <IconButton>
-            <MoreVert />
+            <CloseIcon onClick={deleteRoomHandler}/>
           </IconButton>
         </div>
       </div>

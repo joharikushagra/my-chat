@@ -1,10 +1,12 @@
+import { auth } from "./Firebase";
+
 export const initialState = {
     user:null,
 }
 
 export const actionTypes = {
     SET_USER:"SET_USER",
-    UNSET_USER:"UNSET__USER"
+    UNSET_USER:"UNSET_USER"
 };
 
 const reducer = (state,action) => {
