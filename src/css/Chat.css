@@ -40,6 +40,30 @@
    overflow: scroll;
 }
 
+.chat__warning{
+    height:100%;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* width: 100vw; */
+    /* width: 200px; */
+    background-color: white;
+}
+
+.chat__warningBody{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    justify-content: space-evenly;
+    font-weight: 700;
+    box-shadow: 1px 10px 10px rgba(0,0,0,.5);
+    width: 400px;
+    height:200px;
+    background-color:  #dcf8c6;;
+}
+
 .chat__message{
     position: relative;
     background-color: #fff;

@@ -9,6 +9,7 @@ import {
   SearchOutlined,
 } from "@material-ui/icons";
 import { IconButton } from "@material-ui/core";
+// import {Alert} from '@material-ui/';
 import CloseIcon from "@material-ui/icons/Close";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -24,6 +25,7 @@ function Chat() {
   const [messages, setMessages] = useState([]);
   const [{ user }, dispatch] = useStateValue();
   const history = useHistory();
+  const [warning, setWarning] = useState(false)
 
   useEffect(() => {
     console.log('====================================');
@@ -74,11 +76,31 @@ function Chat() {
   }
 
 
-  const deleteRoomHandler = ()=>{
-    db.collection('rooms').doc(roomId).delete().then(res=>{
-      console.log('room deleted');
-      history.push("/rooms")
-    }).catch(err=>console.log(err.message));
+  // const deleteRoomHandler = ()=>{
+  //   db.collection('rooms').doc(roomId).delete().then(res=>{
+  //     console.log('room deleted');
+  //     history.push("/rooms")
+  //   }).catch(err=>console.log(err.message));
+
+  //   setWarning(false);
+  // }
+
+  const popupHandler=()=>{
+     setWarning(true)
+  }
+  const popupClose=(e)=>{
+    // console.log(e);
+     if(e===1){
+        db.collection('rooms').doc(roomId).delete().then(res=>{
+          console.log('room deleted');
+          history.push("/rooms")
+        }).catch(err=>console.log(err.message));
+    
+        setWarning(false);
+     }
+
+     else
+     setWarning(false)
   }
 
   return (
@@ -102,11 +124,25 @@ function Chat() {
             <AttachFile />
           </IconButton>
           <IconButton>
-            <CloseIcon onClick={deleteRoomHandler}/>
+            <CloseIcon onClick={popupHandler}/>
           </IconButton>
         </div>
       </div>
 
+      {warning && (
+        <>
+       <div className="chat__warning">
+        <div className="chat__warningBody">
+          <p>
+          Do you want to delete this room?
+          </p>
+          <Button id={1}variant="contained" color="secondary" onClick={()=>popupClose(1)}>YES</Button>
+          <Button id={2} variant="contained" color="secondary" onClick={()=>popupClose(2)}>NO</Button>
+        </div>
+       </div>
+        </>
+      )
+      }
       <div className="chat__body">
         {messages.map((message) => (
           <p
